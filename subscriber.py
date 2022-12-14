@@ -1,11 +1,9 @@
-import matplotlib
-import paho.mqtt.client as mqtt
 import json
 from tkinter import *
+import paho.mqtt.client as mqtt
+from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg)
 from matplotlib.figure import Figure
-from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg, NavigationToolbar2Tk)
-from matplotlib.animation import FuncAnimation
-from tkinter import messagebox
+
 
 # this function is called when the subscriber receives a message
 # we are simply display some data items on screen, normally this
@@ -51,8 +49,8 @@ class Subscriber:
     def on_message(self, client, userdata, message):
         data = message.payload.decode('utf-8')
         obj = json.loads(data)
-        print(f'Blood Pressure @ Time: {obj["Time"]}')
         self.update_graph(obj["Stock Price"])
+        print(obj["Time"] + ': $' + str(obj['Stock Price']))
 
     def start_clicked(self, *args):
         self.client.on_message = self.on_message
@@ -60,13 +58,10 @@ class Subscriber:
         self.client.subscribe('STOCKS/' + self.topic)
         self.client.loop_start()
 
-
-
         # graph stuff
         y = [i ** 2 for i in range(101)]
         # adding the subplot
         self.plot1 = self.fig.add_subplot(111)
-
 
         # creating the Tkinter canvas
         # containing the Matplotlib figure
@@ -78,18 +73,15 @@ class Subscriber:
         self.output.get_tk_widget().pack()
 
     def animate(self):
-        print("animate")
         self.plot1.clear()
         self.plot1.set_title(self.graph_name)
         self.plot1.set_xlabel("Weeks")
         self.plot1.set_ylabel("Price")
 
-
         self.plot1.plot(self.x_vals, self.y_vals)
         self.output.draw()
 
     def update_graph(self, new_value):
-        print(new_value)
         if self.isfloat(new_value):
             self.y_vals.append(new_value)
             x = len(self.x_vals)
@@ -105,7 +97,6 @@ class Subscriber:
         if self.output:
             for child in self.canvas.winfo_children():
                 child.destroy()
-            # or just use canvas.winfo_children()[0].destroy()
 
         self.output = None
         self.x_vals = []
@@ -123,7 +114,6 @@ class Subscriber:
 def subscribe():
     name = t.get("1.0", "end-1c")
     sub = Subscriber(name, variable.get())
-    print("value is:" + variable.get())
 
 
 master = Tk()
@@ -131,14 +121,14 @@ master.title("Master")
 master.geometry("700x700")
 
 fig_master = Figure(figsize=(5, 5), dpi=100)
-l = Label(text = "Enter Name of Subscriber:")
-t = Text(master = master, height = 5, width = 52, bg="light yellow")
-sub_button = Button(master=master, command=subscribe, height=2, width=10, text="Subscribe",background="yellow")
+l = Label(text="Enter Name of Subscriber:")
+t = Text(master=master, height=5, width=52, bg="light yellow")
+sub_button = Button(master=master, command=subscribe, height=2, width=10, text="Subscribe", background="yellow")
 
-OPTIONS = ["TSLA", "NVDA", "AAPL"] #etc
+OPTIONS = ["TSLA", "NVDA", "AAPL"]  # etc
 
 variable = StringVar(master)
-variable.set(OPTIONS[0]) # default value
+variable.set(OPTIONS[0])  # default value
 options = OptionMenu(master, variable, *OPTIONS)
 
 l.pack()

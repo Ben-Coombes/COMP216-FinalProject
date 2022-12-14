@@ -1,10 +1,5 @@
-# filename: wk11e_publisher.py
-# by Narendra for COMP216 (Aug 2020)
-# publishes a series of json objects
-# We will use json.dumps() to convert to a string
 import time
 from tkinter import messagebox
-
 import paho.mqtt.client as mqtt
 import json
 import random
@@ -36,7 +31,10 @@ class Publisher(threading.Thread):
             self.stock_data['Time'] = time.asctime()
             self.client.connect('localhost', 1883)
             self.client.publish('STOCKS/' + self.stock_data['Stock Name'], json.dumps(self.stock_data))
-            self.print_text(str(self.stock_data['Stock Name']) + ': ' + str(self.stock_data['Stock Price']))
+            self.print_text(self.stock_data['Time'] + ' - ' + str(self.stock_data['Stock Name']) + ': $' + str(
+                self.stock_data['Stock Price']))
+            print(self.stock_data['Time'] + ' - ' + str(self.stock_data['Stock Name']) + ': $' + str(
+                self.stock_data['Stock Price']))
             self.client.disconnect()
 
     def run(self):
@@ -46,9 +44,9 @@ class Publisher(threading.Thread):
             self.stock_data['Stock Price'] = self.generator.generate_stock_price(current_price)
             time.sleep(0.5)
             if random.randint(0, 100) == 1:
-                print('failed')
+                print('FAILED - Publisher error no data sent to Broker')
                 continue
-            if random.randint(0, 20) == 1:
+            if random.randint(0, 200) == 1:
                 self.stock_data['Stock Price'] = '######'
             self.send_data()
 
@@ -109,7 +107,8 @@ if __name__ == '__main__':
 
     l4 = Label(text="Select Stock:")
 
-    sub_button = Button(master=master, command=create_pub, height=2, width=15, text="Create Publisher", background="yellow")
+    sub_button = Button(master=master, command=create_pub, height=2, width=15, text="Create Publisher",
+                        background="yellow")
 
     OPTIONS = ["TSLA", "NVDA", "AAPL"]  # etc
 
