@@ -48,7 +48,6 @@ class Subscriber:
         # run the gui
         self.window.mainloop()
 
-
     def on_message(self, client, userdata, message):
         data = message.payload.decode('utf-8')
         obj = json.loads(data)
@@ -79,7 +78,6 @@ class Subscriber:
         self.plot1.clear()
         self.plot1.plot(self.x_vals, self.y_vals)
         self.output.draw()
-
 
     def update_graph(self, new_value):
         print(new_value)
