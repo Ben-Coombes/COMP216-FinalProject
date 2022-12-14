@@ -5,9 +5,7 @@
 import time
 import paho.mqtt.client as mqtt
 import json
-import numpy as np
-
-import data_generator
+import random
 from data_generator import Generator
 
 
@@ -18,27 +16,30 @@ class Publisher:
             'Stock Price': start_price,
             'Stock Name': stock_name
         }
-        self.last_price = start_price
         self.volatility = volatility
         self.trend = trend
         self.generator = Generator(trend, volatility)
         self.client = mqtt.Client()
 
-    def publish(self):
-        self.client.publish('STOCKS/' + self.stock_data['Stock Name'], json.dumps(self.stock_data))
-
-    def start_client(self):
+    def send_data(self):
+        self.stock_data['Time'] = time.asctime()
         self.client.connect('localhost', 1883)
-        self.client.loop_start()
-        self.publish()
+        self.client.publish('STOCKS/' + self.stock_data['Stock Name'], json.dumps(self.stock_data))
+        self.client.disconnect()
+
+    def start(self):
         while True:
-            time.sleep(2)
-            self.stock_data['Time'] = time.asctime()
-            self.stock_data['Stock Price'] = self.generator.generate_stock_price(self.last_price)
-            self.publish()
-            print(self.stock_data['Stock Price'])
+            current_price = self.stock_data['Stock Price']
+            self.stock_data['Stock Price'] = self.generator.generate_stock_price(current_price)
+            time.sleep(0.2)
+            if random.randint(0, 100) == 1:
+                print('failed')
+                continue
+            if random.randint(0, 200) == 1:
+                self.stock_data['Stock Price'] = '######'
+            self.send_data()
 
 
 pub = Publisher(10, 5, 1, 'Tesla')
 
-pub.start_client()
+pub.start()
