@@ -28,7 +28,7 @@ class Subscriber:
         self.window.title(name)
 
         # dimensions of the main window
-        self.window.geometry("700x700")
+        self.window.geometry("700x630")
 
         self.canvas = Canvas(self.window, width=500, height=500, bg='white')
         self.canvas.pack()
@@ -118,11 +118,11 @@ def subscribe():
 
 master = Tk()
 master.title("Master")
-master.geometry("700x700")
+master.geometry("250x250")
 
 fig_master = Figure(figsize=(5, 5), dpi=100)
 l = Label(text="Enter Name of Subscriber:")
-t = Text(master=master, height=5, width=52, bg="light yellow")
+t = Text(master=master, height=2, width=20, bg="light yellow")
 sub_button = Button(master=master, command=subscribe, height=2, width=10, text="Subscribe", background="yellow")
 
 OPTIONS = ["TSLA", "NVDA", "AAPL"]  # etc
