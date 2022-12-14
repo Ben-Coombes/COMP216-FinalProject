@@ -4,6 +4,7 @@ import json
 from tkinter import *
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg, NavigationToolbar2Tk)
+from matplotlib.animation import FuncAnimation
 from tkinter import messagebox
 
 
@@ -11,75 +12,96 @@ from tkinter import messagebox
 # we are simply display some data items on screen, normally this
 # data is sent to another system to be cleansed, stored and processed
 # and then some action can be taken
-def on_message(client, userdata, message):
-    data = message.payload.decode('utf-8')
-    obj = json.loads(data)
-    print(f'Blood Pressure @ Time: {obj["Time"]}')
+class Subscriber:
+    def __init__(self):
+        self.client = mqtt.Client()
+
+        self.window = Tk()
+
+        self.output = None
+
+        self.plot1 = None
+
+        self.x_vals = []
+        self.y_vals = []
+
+        # setting the title
+        self.window.title('Subscriber')
+
+        # dimensions of the main window
+        self.window.geometry("700x700")
+
+        self.canvas = Canvas(self.window, width=500, height=500, bg='white')
+        self.canvas.pack()
+
+        # button that displays the plot
+        self.plot_button = Button(master=self.window, command=self.start_clicked, height=2, width=10, text="Start")
+
+        self.clear_button = Button(master=self.window, command=self.stop_clicked, height=2, width=10, text="Stop",
+                                   background="yellow")
+
+        self.fig = Figure(figsize=(5, 5), dpi=100)
+        # place the button
+        self.plot_button.pack()
+        self.clear_button.pack()
+
+        # run the gui
+        self.window.mainloop()
 
 
-def start_clicked(*args):
-    client.on_message = on_message
-    client.connect('localhost', 1883)
-    client.subscribe('COMP216/test')
-    client.loop_start()
+    def on_message(self, client, userdata, message):
+        data = message.payload.decode('utf-8')
+        obj = json.loads(data)
+        print(f'Blood Pressure @ Time: {obj["Time"]}')
+        self.update_graph(obj["Stock Price"])
 
-    # graph stuff
-    global output, fig
-    fig = Figure(figsize=(5, 5), dpi=100)
-    y = [i ** 2 for i in range(101)]
-    # adding the subplot
-    plot1 = fig.add_subplot(111)
+    def start_clicked(self, *args):
+        self.client.on_message = self.on_message
+        self.client.connect('localhost', 1883)
+        self.client.subscribe('STOCKS/Tesla')
+        self.client.loop_start()
 
-    # plotting the graph
-    plot1.plot(y)
+        # graph stuff
+        y = [i ** 2 for i in range(101)]
+        # adding the subplot
+        self.plot1 = self.fig.add_subplot(111)
 
-    # creating the Tkinter canvas
-    # containing the Matplotlib figure
-    output = FigureCanvasTkAgg(fig, master=canvas)
-    output.draw()
+        # creating the Tkinter canvas
+        # containing the Matplotlib figure
+        self.output = FigureCanvasTkAgg(self.fig, master=self.canvas)
+        self.output.draw()
 
-    # placing the canvas on the Tkinter window
-    output.get_tk_widget().pack()
+        # placing the canvas on the Tkinter window
+        self.output.get_tk_widget().pack()
 
-
-def stop_clicked(*args):
-    client.loop_stop()
-
-    # graph stuff
-    global output
-    if output:
-        for child in canvas.winfo_children():
-            child.destroy()
-        # or just use canvas.winfo_children()[0].destroy()
-
-    output = None
+    def animate(self):
+        print("animate")
+        self.plot1.clear()
+        self.plot1.plot(self.x_vals, self.y_vals)
+        self.output.draw()
 
 
+    def update_graph(self, new_value):
+        print(new_value)
+        self.y_vals.append(new_value)
+        x = len(self.x_vals)
+        self.x_vals.append(x)
+        self.animate()
 
-client = mqtt.Client()
+    def stop_clicked(self, *args):
+        self.client.loop_stop()
 
-window = Tk()
+        # graph stuff
 
-output = None
-fig = None
+        if self.output:
+            for child in self.canvas.winfo_children():
+                child.destroy()
+            # or just use canvas.winfo_children()[0].destroy()
 
-# setting the title
-window.title('Plotting in Tkinter')
+        self.output = None
+        self.x_vals = []
+        self.y_vals = []
+        self.fig.clear()
 
-# dimensions of the main window
-window.geometry("700x700")
 
-canvas = Canvas(window, width=500, height=500, bg='white')
-canvas.pack()
-
-# button that displays the plot
-plot_button = Button(master = window, command = start_clicked, height = 2, width = 10, text = "Start")
-
-clear_button = Button(master = window, command = stop_clicked, height = 2, width = 10, text = "Stop", background = "yellow")
-
-# place the button
-plot_button.pack()
-clear_button.pack()
-
-# run the gui
-window.mainloop()
+sub = Subscriber()
