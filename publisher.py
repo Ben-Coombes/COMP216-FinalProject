@@ -58,7 +58,7 @@ class Publisher(threading.Thread):
 
     def create_window(self):
         self.window = Toplevel(master)
-        self.window.geometry('700x700')
+        self.window.geometry('500x300')
         self.window.title(self.pub_name)
         self.window.protocol("WM_DELETE_WINDOW", self.on_closing)
 
@@ -83,19 +83,33 @@ class Publisher(threading.Thread):
 
 def create_pub():
     name = t.get("1.0", "end-1c")
-    pub = Publisher(200, 5, 0, variable.get(), name)
+    start = float(t1.get("1.0", "end-1c"))
+    vol = float(t2.get("1.0", "end-1c"))
+    trend = float(t3.get("1.0", "end-1c"))
+    pub = Publisher(start, vol, trend, variable.get(), name)
     pub.start()
     print('test')
 
 
 if __name__ == '__main__':
     master = Tk()
-    master.geometry("700x700")
+    master.geometry("400x400")
 
     l = Label(text="Enter Name of Publisher:")
-    t = Text(master=master, height=5, width=52, bg="light yellow")
-    sub_button = Button(master=master, command=create_pub, height=2, width=15, text="Create Publisher",
-                        background="yellow")
+    t = Text(master=master, height=2, width=20, bg="light yellow")
+
+    l1 = Label(text="Enter Start Price:")
+    t1 = Text(master=master, height=2, width=20, bg="light yellow")
+
+    l2 = Label(text="Enter Volatility:")
+    t2 = Text(master=master, height=2, width=20, bg="light yellow")
+
+    l3 = Label(text="Enter Trend:")
+    t3 = Text(master=master, height=2, width=20, bg="light yellow")
+
+    l4 = Label(text="Select Stock:")
+
+    sub_button = Button(master=master, command=create_pub, height=2, width=15, text="Create Publisher", background="yellow")
 
     OPTIONS = ["TSLA", "NVDA", "AAPL"]  # etc
 
@@ -104,7 +118,14 @@ if __name__ == '__main__':
     options = OptionMenu(master, variable, *OPTIONS)
 
     l.pack()
-    #t.pack()
-    #sub_button.pack()
-    #options.pack()
+    t.pack()
+    l1.pack()
+    t1.pack()
+    l2.pack()
+    t2.pack()
+    l3.pack()
+    t3.pack()
+    l4.pack()
+    options.pack()
+    sub_button.pack()
     master.mainloop()
