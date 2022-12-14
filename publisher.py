@@ -29,7 +29,8 @@ class Publisher:
 
     def start(self):
         while True:
-            current_price = self.stock_data['Stock Price']
+            if self.isfloat(self.stock_data['Stock Price']):
+                current_price = self.stock_data['Stock Price']
             self.stock_data['Stock Price'] = self.generator.generate_stock_price(current_price)
             time.sleep(0.2)
             if random.randint(0, 100) == 1:
@@ -38,6 +39,13 @@ class Publisher:
             if random.randint(0, 200) == 1:
                 self.stock_data['Stock Price'] = '######'
             self.send_data()
+
+    def isfloat(self, num):
+        try:
+            float(num)
+            return True
+        except ValueError:
+            return False
 
 
 pub = Publisher(10, 5, 1, 'Tesla')
