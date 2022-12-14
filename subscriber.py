@@ -6,14 +6,12 @@ from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg, NavigationToolbar2Tk)
 from matplotlib.animation import FuncAnimation
 from tkinter import messagebox
-
-
 # this function is called when the subscriber receives a message
 # we are simply display some data items on screen, normally this
 # data is sent to another system to be cleansed, stored and processed
 # and then some action can be taken
 class Subscriber:
-    def __init__(self):
+    def __init__(self, name):
         self.client = mqtt.Client()
 
         self.window = Tk()
@@ -26,7 +24,7 @@ class Subscriber:
         self.y_vals = []
 
         # setting the title
-        self.window.title('Subscriber')
+        self.window.title(name)
 
         # dimensions of the main window
         self.window.geometry("700x700")
@@ -46,7 +44,6 @@ class Subscriber:
         self.clear_button.pack()
 
         # run the gui
-        self.window.mainloop()
 
     def on_message(self, client, userdata, message):
         data = message.payload.decode('utf-8')
@@ -103,7 +100,6 @@ class Subscriber:
         self.y_vals = []
         self.fig.clear()
 
-
     def isfloat(self, num):
         try:
             float(num)
@@ -112,4 +108,8 @@ class Subscriber:
             return False
 
 
-sub = Subscriber()
+sub = Subscriber('Subscriber1')
+sub2 = Subscriber('Subscriber2')
+sub3 = Subscriber('Subscriber3')
+
+mainloop()
