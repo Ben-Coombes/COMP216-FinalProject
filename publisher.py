@@ -32,11 +32,11 @@ class Publisher:
             if self.isfloat(self.stock_data['Stock Price']):
                 current_price = self.stock_data['Stock Price']
             self.stock_data['Stock Price'] = self.generator.generate_stock_price(current_price)
-            time.sleep(0.2)
+            time.sleep(0.5)
             if random.randint(0, 100) == 1:
                 print('failed')
                 continue
-            if random.randint(0, 200) == 1:
+            if random.randint(0, 20) == 1:
                 self.stock_data['Stock Price'] = '######'
             self.send_data()
 
@@ -48,6 +48,6 @@ class Publisher:
             return False
 
 
-pub = Publisher(10, 5, 1, 'Tesla')
+pub = Publisher(200, 5, 0, 'Tesla')
 
 pub.start()

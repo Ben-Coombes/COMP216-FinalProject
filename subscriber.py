@@ -81,12 +81,14 @@ class Subscriber:
 
     def update_graph(self, new_value):
         print(new_value)
-        self.y_vals.append(new_value)
-        x = len(self.x_vals)
-        self.x_vals.append(x)
-        self.animate()
+        if self.isfloat(new_value):
+            self.y_vals.append(new_value)
+            x = len(self.x_vals)
+            self.x_vals.append(x)
+            self.animate()
 
     def stop_clicked(self, *args):
+        self.client.unsubscribe('STOCKS/Tesla')
         self.client.loop_stop()
 
         # graph stuff
@@ -100,6 +102,14 @@ class Subscriber:
         self.x_vals = []
         self.y_vals = []
         self.fig.clear()
+
+
+    def isfloat(self, num):
+        try:
+            float(num)
+            return True
+        except ValueError:
+            return False
 
 
 sub = Subscriber()
