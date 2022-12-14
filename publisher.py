@@ -54,7 +54,7 @@ class Publisher(threading.Thread):
 
 
 def create_pub():
-    pub = Publisher(200, 5, 0, 'Tesla')
+    pub = Publisher(200, 5, 0, 'TSLA')
     pub.start()
     print('test')
 

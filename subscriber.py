@@ -12,7 +12,8 @@ from tkinter import messagebox
 # data is sent to another system to be cleansed, stored and processed
 # and then some action can be taken
 class Subscriber:
-    def __init__(self, name):
+    def __init__(self, name, topic):
+        self.topic = topic
         self.graph_name = variable.get()
         self.client = mqtt.Client()
 
@@ -56,7 +57,7 @@ class Subscriber:
     def start_clicked(self, *args):
         self.client.on_message = self.on_message
         self.client.connect('localhost', 1883)
-        self.client.subscribe('STOCKS/Tesla')
+        self.client.subscribe('STOCKS/' + self.topic)
         self.client.loop_start()
 
 
@@ -96,7 +97,7 @@ class Subscriber:
             self.animate()
 
     def stop_clicked(self, *args):
-        self.client.unsubscribe('STOCKS/Tesla')
+        self.client.unsubscribe('STOCKS/' + self.topic)
         self.client.loop_stop()
 
         # graph stuff
@@ -121,7 +122,7 @@ class Subscriber:
 
 def subscribe():
     name = t.get("1.0", "end-1c")
-    sub = Subscriber(name)
+    sub = Subscriber(name, variable.get())
     print("value is:" + variable.get())
 
 
@@ -134,7 +135,7 @@ l = Label(text = "Enter Name of Subscriber:")
 t = Text(master = master, height = 5, width = 52, bg="light yellow")
 sub_button = Button(master=master, command=subscribe, height=2, width=10, text="Subscribe",background="yellow")
 
-OPTIONS = ["Tesla", "Nvidia", "Apple"] #etc
+OPTIONS = ["TSLA", "NVDA", "AAPL"] #etc
 
 variable = StringVar(master)
 variable.set(OPTIONS[0]) # default value
