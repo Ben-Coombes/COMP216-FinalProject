@@ -13,6 +13,7 @@ from tkinter import messagebox
 # and then some action can be taken
 class Subscriber:
     def __init__(self, name):
+        self.graph_name = variable.get()
         self.client = mqtt.Client()
 
         self.window = Toplevel(master)
@@ -39,7 +40,7 @@ class Subscriber:
         self.clear_button = Button(master=self.window, command=self.stop_clicked, height=2, width=10, text="Stop",
                                    background="yellow")
 
-        self.fig = Figure(figsize=(5, 5), dpi=100)
+        self.fig = Figure(figsize=(5, 5), dpi=100, constrained_layout=True)
         # place the button
         self.plot_button.pack()
         self.clear_button.pack()
@@ -58,13 +59,17 @@ class Subscriber:
         self.client.subscribe('STOCKS/Tesla')
         self.client.loop_start()
 
+
+
         # graph stuff
         y = [i ** 2 for i in range(101)]
         # adding the subplot
         self.plot1 = self.fig.add_subplot(111)
 
+
         # creating the Tkinter canvas
         # containing the Matplotlib figure
+
         self.output = FigureCanvasTkAgg(self.fig, master=self.canvas)
         self.output.draw()
 
@@ -74,6 +79,11 @@ class Subscriber:
     def animate(self):
         print("animate")
         self.plot1.clear()
+        self.plot1.set_title(self.graph_name)
+        self.plot1.set_xlabel("Weeks")
+        self.plot1.set_ylabel("Price")
+
+
         self.plot1.plot(self.x_vals, self.y_vals)
         self.output.draw()
 
@@ -109,7 +119,29 @@ class Subscriber:
             return False
 
 
+def subscribe():
+    name = t.get("1.0", "end-1c")
+    sub = Subscriber(name)
+    print("value is:" + variable.get())
+
+
 master = Tk()
+master.title("Master")
 master.geometry("700x700")
 
+fig_master = Figure(figsize=(5, 5), dpi=100)
+l = Label(text = "Enter Name of Subscriber:")
+t = Text(master = master, height = 5, width = 52, bg="light yellow")
+sub_button = Button(master=master, command=subscribe, height=2, width=10, text="Subscribe",background="yellow")
+
+OPTIONS = ["Tesla", "Nvidia", "Apple"] #etc
+
+variable = StringVar(master)
+variable.set(OPTIONS[0]) # default value
+options = OptionMenu(master, variable, *OPTIONS)
+
+l.pack()
+t.pack()
+options.pack()
+sub_button.pack()
 mainloop()
