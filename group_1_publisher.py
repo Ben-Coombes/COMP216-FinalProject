@@ -3,7 +3,7 @@ from tkinter import messagebox
 import paho.mqtt.client as mqtt
 import json
 import random
-from data_generator import Generator
+from group_1_data_generator import Generator
 from tkinter import *
 import threading
 
